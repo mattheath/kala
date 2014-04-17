@@ -8,13 +8,23 @@ import (
 
 func TestCustomTimestamp(t *testing.T) {
 
-	// 2014-04-16 17:49:37 +0100 => 1397666977
-	tm := time.Unix(1397666977, 0)
-	newT := customTimestamp(tm)
-
 	// timestamp - epoch = adjusted time
-	// 1397666977000 - 1325376000000 = 72290977000
-	assert.Equal(t, newT, 72290977000, "Times should match")
+	testCases := []struct {
+		ts    int64
+		adjTs int64
+	}{
+		{1397666977000, 72290977000},   // Now
+		{1397666978000, 72290978000},   // in 1 second
+		{1395881056000, 70505056000},   // 3 weeks ago
+		{1303001162000, -22374838000},  // 3 years ago
+		{1492390054000, 167014054000},  // in 3 years
+		{2344466898000, 1019090898000}, // in 30 years
+	}
+
+	for _, tc := range testCases {
+		adjTs := customTimestamp(time.Unix(tc.ts/1000, 0))
+		assert.Equal(t, adjTs, tc.adjTs, "Times should match")
+	}
 }
 
 func TestValidWorkerId(t *testing.T) {
