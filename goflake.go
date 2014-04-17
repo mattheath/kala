@@ -14,7 +14,7 @@ const (
 	maxSequence  uint32 = -1 ^ (-1 << sequenceBits) // sequence mask
 
 	// maxAdjustedTimestamp which we can generate IDs to, as we are limited to 41 bits
-	// maxAdjustedTimestamp + epoch => 2081-09-06 15:47:35 +0000 UTC
+	// maxAdjustedTimestamp + epoch => 2081-09-06 15:47:35 +0000 UTC (69 year range)
 	maxAdjustedTimestamp int64 = 2199023255551
 )
 
@@ -28,6 +28,15 @@ var (
 	epoch int64 = int64(time.Date(2012, 1, 1, 0, 0, 0, 0, time.UTC).UnixNano() / 1000000)
 )
 
+// New creates a new instance of GoFlake
+// the worker ID should be unique otherwise ID collisions may occur
+func New(workerId uint32) (*goFlake, error) {
+	if workerId < 0 || workerId > maxWorkerId {
+		return nil, ErrInvalidWorkerId
+	}
+	return &goFlake{workerId: workerId}, nil
+}
+
 type goFlake struct {
 	sync.Mutex
 	// lastTimestamp is the most recent millisecond time window encountered
@@ -38,21 +47,26 @@ type goFlake struct {
 	sequence uint32
 }
 
+// Generate a new 64bit ID based on the current time, worker id and sequence
 func (gf *goFlake) Generate() (uint64, error) {
 	gf.Lock()
 	defer gf.Unlock()
 
+	// Get the current timestamp in ms, adjusted to our custom epoch
 	t := customTimestamp(time.Now())
 
+	// Update goflake with this, which will increment sequence number if needed
 	err := gf.update(t)
 	if err != nil {
 		return 0, err
 	}
 
+	// Mint a new ID
 	id := gf.mintId()
 	return id, nil
 }
 
+// update GoFlake with a new timestamp, causing sequence numbers to increment if necessary
 func (gf *goFlake) update(t int64) error {
 	if t != gf.lastTimestamp {
 		switch {
@@ -75,19 +89,14 @@ func (gf *goFlake) update(t int64) error {
 	return nil
 }
 
+// mintId mints new 64bit IDs from the timestamp, worker ID and sequence
 func (gf *goFlake) mintId() uint64 {
 	return (uint64(gf.lastTimestamp) << (workerIdBits + sequenceBits)) |
 		(uint64(gf.workerId) << sequenceBits) |
 		(uint64(gf.sequence))
 }
 
-func New(workerId uint32) (*goFlake, error) {
-	if workerId < 0 || workerId > maxWorkerId {
-		return nil, ErrInvalidWorkerId
-	}
-	return &goFlake{workerId: workerId}, nil
-}
-
+// customTimestamp takes a timestamp and adjusts it to our custom epoch
 func customTimestamp(t time.Time) int64 {
 	return t.UnixNano()/1000000 - epoch
 }
