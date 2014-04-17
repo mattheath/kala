@@ -11,10 +11,10 @@ import (
 )
 
 const (
-	workerIdBits = 10              // worker id
-	maxWorkerId  = -1 ^ (-1 << 10) // worker id mask
-	sequenceBits = 12              // sequence
-	maxSequence  = -1 ^ (-1 << 12) // sequence mask
+	workerIdBits uint32 = 10                        // worker id
+	maxWorkerId  uint32 = -1 ^ (-1 << workerIdBits) // worker id mask
+	sequenceBits uint32 = 12                        // sequence
+	maxSequence  uint32 = -1 ^ (-1 << sequenceBits) // sequence mask
 
 	// maxAdjustedTimestamp which we can generate IDs to, as we are limited to 41 bits
 	// maxAdjustedTimestamp + epoch => 2081-09-06 15:47:35 +0000 UTC
