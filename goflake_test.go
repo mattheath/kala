@@ -42,3 +42,11 @@ func TestInvalidWorkerId(t *testing.T) {
 		assert.Equal(t, err, ErrInvalidWorkerId, "Error should match")
 	}
 }
+
+func TestGenerate(t *testing.T) {
+	gf, err := NewGoFlake(0)
+	assert.Equal(t, err, nil, "Error should be nil")
+
+	id, err := gf.Generate()
+	assert.Equal(t, err, nil, "Error should be nil")
+}
