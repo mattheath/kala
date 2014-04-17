@@ -96,3 +96,15 @@ func TestMintId(t *testing.T) {
 		assert.Equal(t, id, tc.id, fmt.Sprintf("IDs should match. Provided: '%s', Returned: '%s' ", tc.id, id))
 	}
 }
+
+func TestBackwardsTimeError(t *testing.T) {
+	gf := &GoFlake{lastTimestamp: 1397666977000}
+	err := gf.update(1397666976999)
+	assert.NotEqual(t, err, nil, "Error should not be nil")
+}
+
+func TestTimeOverflow(t *testing.T) {
+	gf := &GoFlake{lastTimestamp: 1397666977000}
+	err := gf.update(2199023255552)
+	assert.Equal(t, err, ErrOverflow, "Errors should match")
+}

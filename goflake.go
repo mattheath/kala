@@ -57,7 +57,6 @@ func (gf *GoFlake) Generate() (uint64, error) {
 }
 
 func (gf *GoFlake) update(t int64) error {
-
 	if t != gf.lastTimestamp {
 		switch {
 		case t < gf.lastTimestamp:
@@ -67,7 +66,6 @@ func (gf *GoFlake) update(t int64) error {
 		case t > maxAdjustedTimestamp:
 			return ErrOverflow
 		}
-
 		gf.sequence = 0
 		gf.lastTimestamp = t
 	} else {
