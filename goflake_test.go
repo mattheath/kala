@@ -108,3 +108,17 @@ func TestTimeOverflow(t *testing.T) {
 	err := gf.update(2199023255552)
 	assert.Equal(t, err, ErrOverflow, "Errors should match")
 }
+
+func TestPreEpochTime(t *testing.T) {
+	testCases := []time.Time{
+		time.Date(2012, 1, 0, 0, 0, 0, 0, time.UTC),
+		time.Date(2011, 9, 5, 0, 0, 0, 0, time.UTC),
+		time.Date(1066, 9, 5, 0, 0, 0, 0, time.UTC),
+	}
+	for _, tc := range testCases {
+		gf := &GoFlake{}
+		ts := customTimestamp(tc)
+		err := gf.update(ts)
+		assert.NotEqual(t, err, nil, "Errors should match")
+	}
+}
