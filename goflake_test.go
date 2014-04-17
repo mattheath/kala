@@ -1,6 +1,7 @@
 package goflake
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -62,4 +63,36 @@ func TestGenerate(t *testing.T) {
 
 	_, err = gf.Generate()
 	assert.Equal(t, err, nil, "Error should be nil")
+}
+
+func TestMintId(t *testing.T) {
+
+	testCases := []struct {
+		lastTs   int64
+		workerId uint32
+		sequence uint32
+		id       uint64
+	}{
+		{1397666977000, 0, 0, 5862240192299008000},     // Plain bit shift 22
+		{2344466898000, 0, 0, 9833406888148992000},     // Plain bit shift 22
+		{1397666977000, 10, 0, 5862240192299048960},    // Worker 10
+		{2344466898000, 10, 0, 9833406888149032960},    // Worker 10
+		{1397666977000, 1023, 0, 5862240192303198208},  // Worker 1023
+		{2344466898000, 1023, 0, 9833406888153182208},  // Worker 1023
+		{1397666977000, 10, 123, 5862240192299049083},  // Worker 10 & Sequence 123
+		{2344466898000, 10, 1230, 9833406888149034190}, // Worker 10 & Sequence 1230
+		{1397666977000, 10, 2356, 5862240192299051316}, // Worker 10 & Sequence 2356
+		{2344466898000, 10, 4090, 9833406888149037050}, // Worker 10 & Sequence 4090
+
+	}
+
+	for _, tc := range testCases {
+		gf := &GoFlake{
+			lastTimestamp: tc.lastTs,
+			workerId:      tc.workerId,
+			sequence:      tc.sequence,
+		}
+		id := gf.mintId()
+		assert.Equal(t, id, tc.id, fmt.Sprintf("IDs should match. Provided: '%s', Returned: '%s' ", tc.id, id))
+	}
 }
