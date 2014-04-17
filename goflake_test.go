@@ -31,7 +31,7 @@ func TestCustomTimestamp(t *testing.T) {
 func TestValidWorkerId(t *testing.T) {
 	validIds := []uint32{0, 545, 1023}
 	for _, v := range validIds {
-		_, err := NewGoFlake(v)
+		_, err := New(v)
 		assert.Equal(t, err, nil, "Error should be nil")
 	}
 }
@@ -39,7 +39,7 @@ func TestValidWorkerId(t *testing.T) {
 func TestInvalidWorkerId(t *testing.T) {
 	invalidIds := []uint32{1024, 5841, 892347934}
 	for _, v := range invalidIds {
-		_, err := NewGoFlake(v)
+		_, err := New(v)
 		assert.Equal(t, err, ErrInvalidWorkerId, "Error should match")
 	}
 }
@@ -58,7 +58,7 @@ func TestSequenceOverflow(t *testing.T) {
 }
 
 func TestGenerate(t *testing.T) {
-	gf, err := NewGoFlake(0)
+	gf, err := New(0)
 	assert.Equal(t, err, nil, "Error should be nil")
 
 	_, err = gf.Generate()

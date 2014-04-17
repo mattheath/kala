@@ -82,10 +82,10 @@ func (gf *goFlake) mintId() uint64 {
 }
 
 func Default() (*goFlake, error) {
-	return NewGoFlake(0)
+	return New(0)
 }
 
-func NewGoFlake(workerId uint32) (*goFlake, error) {
+func New(workerId uint32) (*goFlake, error) {
 	if workerId < 0 || workerId > maxWorkerId {
 		return nil, ErrInvalidWorkerId
 	}
