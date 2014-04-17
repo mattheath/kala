@@ -22,8 +22,9 @@ const (
 )
 
 var (
-	ErrOverflow        error = errors.New(fmt.Sprintf("Timestamp overflow (past end of lifespan) - unable to generate any more IDs"))
-	ErrInvalidWorkerId error = errors.New(fmt.Sprintf("Invalid worker ID - worker ID must be between 0 and %v", maxWorkerId))
+	ErrOverflow         error = errors.New(fmt.Sprintf("Timestamp overflow (past end of lifespan) - unable to generate any more IDs"))
+	ErrInvalidWorkerId  error = errors.New(fmt.Sprintf("Invalid worker ID - worker ID must be between 0 and %v", maxWorkerId))
+	ErrSequenceOverflow error = errors.New(fmt.Sprintf("Sequence overflow (too many IDs generated) - unable to generate IDs for 1 millisecond"))
 
 	// epoch as UTC millisecond timestamp
 	// 2012-01-01 00:00:00 +0000 UTC => 1325376000000
@@ -61,7 +62,7 @@ func (gf *GoFlake) Generate() (uint64, error) {
 	} else {
 		gf.sequence = gf.sequence + 1
 		if gf.sequence > maxSequence {
-			return 0, fmt.Errorf("Sequence overflow (too many IDs generated) - unable to generate IDs for 1 millisecond")
+			return 0, ErrSequenceOverflow
 		}
 	}
 
