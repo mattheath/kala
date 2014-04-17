@@ -47,7 +47,7 @@ func TestInvalidWorkerId(t *testing.T) {
 func TestSequenceOverflow(t *testing.T) {
 	invalidSequenceIds := []uint32{4096, 5841, 892347934}
 	for _, seq := range invalidSequenceIds {
-		gf := &GoFlake{
+		gf := &goFlake{
 			lastTimestamp: customTimestamp(time.Now()), // YUK
 			workerId:      0,
 			sequence:      seq,
@@ -66,7 +66,6 @@ func TestGenerate(t *testing.T) {
 }
 
 func TestMintId(t *testing.T) {
-
 	testCases := []struct {
 		lastTs   int64
 		workerId uint32
@@ -83,11 +82,10 @@ func TestMintId(t *testing.T) {
 		{2344466898000, 10, 1230, 9833406888149034190}, // Worker 10 & Sequence 1230
 		{1397666977000, 10, 2356, 5862240192299051316}, // Worker 10 & Sequence 2356
 		{2344466898000, 10, 4090, 9833406888149037050}, // Worker 10 & Sequence 4090
-
 	}
 
 	for _, tc := range testCases {
-		gf := &GoFlake{
+		gf := &goFlake{
 			lastTimestamp: tc.lastTs,
 			workerId:      tc.workerId,
 			sequence:      tc.sequence,
@@ -98,13 +96,13 @@ func TestMintId(t *testing.T) {
 }
 
 func TestBackwardsTimeError(t *testing.T) {
-	gf := &GoFlake{lastTimestamp: 1397666977000}
+	gf := &goFlake{lastTimestamp: 1397666977000}
 	err := gf.update(1397666976999)
 	assert.NotEqual(t, err, nil, "Error should not be nil")
 }
 
 func TestTimeOverflow(t *testing.T) {
-	gf := &GoFlake{lastTimestamp: 1397666977000}
+	gf := &goFlake{lastTimestamp: 1397666977000}
 	err := gf.update(2199023255552)
 	assert.Equal(t, err, ErrOverflow, "Errors should match")
 }
@@ -116,7 +114,7 @@ func TestPreEpochTime(t *testing.T) {
 		time.Date(1066, 9, 5, 0, 0, 0, 0, time.UTC),
 	}
 	for _, tc := range testCases {
-		gf := &GoFlake{}
+		gf := &goFlake{}
 		ts := customTimestamp(tc)
 		err := gf.update(ts)
 		assert.NotEqual(t, err, nil, "Errors should match")

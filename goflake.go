@@ -3,9 +3,6 @@ package goflake
 import (
 	"errors"
 	"fmt"
-	// "hash/crc32"
-	// "math/rand"
-	// "net"
 	"sync"
 	"time"
 )
@@ -31,7 +28,7 @@ var (
 	epoch int64 = int64(time.Date(2012, 1, 1, 0, 0, 0, 0, time.UTC).UnixNano() / 1000000)
 )
 
-type GoFlake struct {
+type goFlake struct {
 	sync.Mutex
 	// lastTimestamp is the most recent millisecond time window encountered
 	lastTimestamp int64
@@ -41,7 +38,7 @@ type GoFlake struct {
 	sequence uint32
 }
 
-func (gf *GoFlake) Generate() (uint64, error) {
+func (gf *goFlake) Generate() (uint64, error) {
 	gf.Lock()
 	defer gf.Unlock()
 
@@ -56,7 +53,7 @@ func (gf *GoFlake) Generate() (uint64, error) {
 	return id, nil
 }
 
-func (gf *GoFlake) update(t int64) error {
+func (gf *goFlake) update(t int64) error {
 	if t != gf.lastTimestamp {
 		switch {
 		case t < gf.lastTimestamp:
@@ -78,21 +75,21 @@ func (gf *GoFlake) update(t int64) error {
 	return nil
 }
 
-func (gf *GoFlake) mintId() uint64 {
+func (gf *goFlake) mintId() uint64 {
 	return (uint64(gf.lastTimestamp) << (workerIdBits + sequenceBits)) |
 		(uint64(gf.workerId) << sequenceBits) |
 		(uint64(gf.sequence))
 }
 
-func Default() (*GoFlake, error) {
+func Default() (*goFlake, error) {
 	return NewGoFlake(0)
 }
 
-func NewGoFlake(workerId uint32) (*GoFlake, error) {
+func NewGoFlake(workerId uint32) (*goFlake, error) {
 	if workerId < 0 || workerId > maxWorkerId {
 		return nil, ErrInvalidWorkerId
 	}
-	return &GoFlake{workerId: workerId}, nil
+	return &goFlake{workerId: workerId}, nil
 }
 
 func customTimestamp(t time.Time) int64 {
