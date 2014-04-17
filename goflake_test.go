@@ -47,6 +47,6 @@ func TestGenerate(t *testing.T) {
 	gf, err := NewGoFlake(0)
 	assert.Equal(t, err, nil, "Error should be nil")
 
-	id, err := gf.Generate()
+	_, err = gf.Generate()
 	assert.Equal(t, err, nil, "Error should be nil")
 }
