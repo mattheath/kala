@@ -66,11 +66,14 @@ func (gf *GoFlake) Generate() (uint64, error) {
 		}
 	}
 
-	id := (uint64(gf.lastTimestamp) << (workerIdBits + sequenceBits)) |
+	id := gf.mintId()
+	return id, nil
+}
+
+func (gf *GoFlake) mintId() uint64 {
+	return (uint64(gf.lastTimestamp) << (workerIdBits + sequenceBits)) |
 		(uint64(gf.workerId) << sequenceBits) |
 		(uint64(gf.sequence))
-
-	return id, nil
 }
 
 func Default() (*GoFlake, error) {
