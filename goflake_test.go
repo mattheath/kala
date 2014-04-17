@@ -43,6 +43,19 @@ func TestInvalidWorkerId(t *testing.T) {
 	}
 }
 
+func TestSequenceOverflow(t *testing.T) {
+	invalidSequenceIds := []uint32{4096, 5841, 892347934}
+	for _, seq := range invalidSequenceIds {
+		gf := &GoFlake{
+			lastTimestamp: customTimestamp(time.Now()), // YUK
+			workerId:      0,
+			sequence:      seq,
+		}
+		_, err := gf.Generate()
+		assert.Equal(t, err, ErrSequenceOverflow, "Error should match")
+	}
+}
+
 func TestGenerate(t *testing.T) {
 	gf, err := NewGoFlake(0)
 	assert.Equal(t, err, nil, "Error should be nil")
