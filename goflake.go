@@ -47,14 +47,25 @@ func (gf *GoFlake) Generate() (uint64, error) {
 
 	t := customTimestamp(time.Now())
 
+	err := gf.update(t)
+	if err != nil {
+		return 0, err
+	}
+
+	id := gf.mintId()
+	return id, nil
+}
+
+func (gf *GoFlake) update(t int64) error {
+
 	if t != gf.lastTimestamp {
 		switch {
 		case t < gf.lastTimestamp:
-			return 0, fmt.Errorf("Time moved backwards - unable to generate IDs for %v milliseconds", gf.lastTimestamp-t)
+			return fmt.Errorf("Time moved backwards - unable to generate IDs for %v milliseconds", gf.lastTimestamp-t)
 		case t < 0:
-			return 0, fmt.Errorf("Time is currently set before our epoch - unable to generate IDs for %v milliseconds", -1*t)
+			return fmt.Errorf("Time is currently set before our epoch - unable to generate IDs for %v milliseconds", -1*t)
 		case t > maxAdjustedTimestamp:
-			return 0, ErrOverflow
+			return ErrOverflow
 		}
 
 		gf.sequence = 0
@@ -62,12 +73,11 @@ func (gf *GoFlake) Generate() (uint64, error) {
 	} else {
 		gf.sequence = gf.sequence + 1
 		if gf.sequence > maxSequence {
-			return 0, ErrSequenceOverflow
+			return ErrSequenceOverflow
 		}
 	}
 
-	id := gf.mintId()
-	return id, nil
+	return nil
 }
 
 func (gf *GoFlake) mintId() uint64 {
