@@ -5,3 +5,6 @@ go:
   - 1.1
   - 1.2
   - tip
+  
+install:
+  - go get github.com/stretchr/testify/assert
