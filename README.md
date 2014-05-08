@@ -1,6 +1,9 @@
-# goflake
+# Goflake
 
-goflake is an implementation of [Twitter's Snowflake](https://github.com/twitter/snowflake/) in Go based on [sdming/gosnow](https://github.com/sdming/gosnow) and [davegardnerisme/cruftflake](https://github.com/davegardnerisme/cruftflake).
+[![Build Status](https://travis-ci.org/mattheath/goflake.svg?branch=master)](https://travis-ci.org/mattheath/goflake)
+
+
+Goflake is an implementation of [Twitter's Snowflake](https://github.com/twitter/snowflake/) in Go based on [sdming/gosnow](https://github.com/sdming/gosnow) and [davegardnerisme/cruftflake](https://github.com/davegardnerisme/cruftflake).
 
 goflake can be used to generate unique 64bit IDs without coordination, these consist of:
 
