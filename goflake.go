@@ -1,8 +1,9 @@
-package goflake
+package kala
 
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -28,9 +29,9 @@ var (
 	epoch int64 = int64(time.Date(2012, 1, 1, 0, 0, 0, 0, time.UTC).UnixNano() / 1000000)
 )
 
-// New creates a new instance of GoFlake
-// the worker ID should be unique otherwise ID collisions may occur
-func New(workerId uint32) (*goFlake, error) {
+// NewSnowflake creates a new instance of a snowflake compatible ID minter
+// the worker ID must be unique otherwise ID collisions are likely to occur
+func NewSnowflake(workerId uint32) (Minter, error) {
 	if workerId < 0 || workerId > maxWorkerId {
 		return nil, ErrInvalidWorkerId
 	}
@@ -47,8 +48,8 @@ type goFlake struct {
 	sequence uint32
 }
 
-// Generate a new 64bit ID based on the current time, worker id and sequence
-func (gf *goFlake) Generate() (uint64, error) {
+// Mint a new 64bit ID based on the current time, worker id and sequence
+func (gf *goFlake) Mint() (string, error) {
 	gf.Lock()
 	defer gf.Unlock()
 
@@ -58,12 +59,13 @@ func (gf *goFlake) Generate() (uint64, error) {
 	// Update goflake with this, which will increment sequence number if needed
 	err := gf.update(t)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	// Mint a new ID
 	id := gf.mintId()
-	return id, nil
+
+	return strconv.FormatUint(id, 10), nil
 }
 
 // update GoFlake with a new timestamp, causing sequence numbers to increment if necessary

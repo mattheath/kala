@@ -1,10 +1,11 @@
-package goflake
+package kala
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCustomTimestamp(t *testing.T) {
@@ -31,7 +32,7 @@ func TestCustomTimestamp(t *testing.T) {
 func TestValidWorkerId(t *testing.T) {
 	validIds := []uint32{0, 545, 1023}
 	for _, v := range validIds {
-		_, err := New(v)
+		_, err := NewSnowflake(v)
 		assert.Equal(t, err, nil, "Error should be nil")
 	}
 }
@@ -39,7 +40,7 @@ func TestValidWorkerId(t *testing.T) {
 func TestInvalidWorkerId(t *testing.T) {
 	invalidIds := []uint32{1024, 5841, 892347934}
 	for _, v := range invalidIds {
-		_, err := New(v)
+		_, err := NewSnowflake(v)
 		assert.Equal(t, err, ErrInvalidWorkerId, "Error should match")
 	}
 }
@@ -52,16 +53,16 @@ func TestSequenceOverflow(t *testing.T) {
 			workerId:      0,
 			sequence:      seq,
 		}
-		_, err := gf.Generate()
+		_, err := gf.Mint()
 		assert.Equal(t, err, ErrSequenceOverflow, "Error should match")
 	}
 }
 
-func TestGenerate(t *testing.T) {
-	gf, err := New(0)
+func TestMint(t *testing.T) {
+	gf, err := NewSnowflake(0)
 	assert.Equal(t, err, nil, "Error should be nil")
 
-	_, err = gf.Generate()
+	_, err = gf.Mint()
 	assert.Equal(t, err, nil, "Error should be nil")
 }
 
