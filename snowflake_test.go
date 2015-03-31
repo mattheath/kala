@@ -62,8 +62,11 @@ func TestMint(t *testing.T) {
 	gf, err := NewSnowflake(0)
 	assert.Equal(t, err, nil, "Error should be nil")
 
-	_, err = gf.Mint()
-	assert.Equal(t, err, nil, "Error should be nil")
+	for i := 0; i < 10; i++ {
+		id, err := gf.Mint()
+		t.Log(id)
+		assert.Equal(t, err, nil, "Error should be nil")
+	}
 }
 
 func TestMintId(t *testing.T) {

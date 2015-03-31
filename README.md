@@ -16,6 +16,20 @@ Kāla's snowflake compatible minter can be used to generate unique 64bit IDs wit
  * configured worker id - 10 bits - gives us up to 1024 workers
  * sequence number - 12 bits - rolls over every 4096 per worker (with protection to avoid rollover in the same ms)
 
+Example IDs:
+```
+429587937416445952
+429587937416445953
+429587937416445954
+429587937416445955
+429587937416445956
+429587937416445957
+429587937416445958
+429587937416445959
+429587937416445960
+429587937416445961
+```
+
 ### Usage
 
 ```golang
