@@ -4,7 +4,7 @@
 
 Kāla provides implementations of time ordered distributed ID generators in Go.
 
-Snowflake: [Twitter's Snowflake](https://github.com/twitter/snowflake/) in Go based on [sdming/gosnow](https://github.com/sdming/gosnow) and [davegardnerisme/cruftflake](https://github.com/davegardnerisme/cruftflake). Formerly located at [github.com/mattheath/goflake](https://github.com/mattheath/goflake)
+Snowflake: Generates 64bit k-ordered IDs similar to [Twitter's Snowflake](https://github.com/twitter/snowflake/) based on [sdming/gosnow](https://github.com/sdming/gosnow) and [davegardnerisme/cruftflake](https://github.com/davegardnerisme/cruftflake). (Formerly [github.com/mattheath/goflake](https://github.com/mattheath/goflake))
 
 BigFlake: Generates 128bit k-ordered IDs based on Boundary's [Flake](https://github.com/boundary/flake) implementation, either with or without coordination.
 
