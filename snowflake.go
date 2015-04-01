@@ -21,8 +21,8 @@ const (
 
 var (
 	ErrInvalidWorkerId  error = errors.New("Invalid worker ID - worker ID out of range")
-	ErrOverflow         error = errors.New(fmt.Sprintf("Timestamp overflow (past end of lifespan) - unable to generate any more IDs"))
-	ErrSequenceOverflow error = errors.New(fmt.Sprintf("Sequence overflow (too many IDs generated) - unable to generate IDs for 1 millisecond"))
+	ErrOverflow         error = errors.New("Timestamp overflow (past end of lifespan) - unable to generate any more IDs")
+	ErrSequenceOverflow error = errors.New("Sequence overflow (too many IDs generated) - unable to generate IDs for 1 millisecond")
 )
 
 // NewSnowflake creates a new instance of a snowflake compatible ID minter
