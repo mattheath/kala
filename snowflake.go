@@ -85,7 +85,7 @@ func (sf *Snowflake) Mint() (string, error) {
 	// Get the current timestamp in ms, adjusted to our custom epoch
 	t := customTimestamp(sf.epoch, time.Now())
 
-	// Update goflake with this, which will increment sequence number if needed
+	// Update snowflake with this, which will increment sequence number if needed
 	err := sf.update(t)
 	if err != nil {
 		return "", err
@@ -113,7 +113,7 @@ func (sf *Snowflake) setup() {
 	sf.initialised = true
 }
 
-// update GoFlake with a new timestamp, causing sequence numbers to increment if necessary
+// update Snowflake with a new timestamp, causing sequence numbers to increment if necessary
 func (sf *Snowflake) update(t int64) error {
 	if t != sf.lastTimestamp {
 		switch {
