@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCustomTimestamp(t *testing.T) {
@@ -23,49 +24,70 @@ func TestCustomTimestamp(t *testing.T) {
 		{2344466898000, 1019090898000}, // in 30 years
 	}
 
+	// Initialise our custom epoch
+	epoch, err := time.Parse(time.RFC3339, defaultSnowflakeEpoch)
+	require.NoError(t, err)
+	epochMs := timeToMsInt64(epoch)
+
 	for _, tc := range testCases {
-		adjTs := customTimestamp(time.Unix(tc.ts/1000, 0))
+		adjTs := customTimestamp(epochMs, time.Unix(tc.ts/1000, 0))
 		assert.Equal(t, adjTs, tc.adjTs, "Times should match")
 	}
 }
 
 func TestValidWorkerId(t *testing.T) {
-	validIds := []uint32{0, 545, 1023}
-	for _, v := range validIds {
-		_, err := NewSnowflake(v)
-		assert.Equal(t, err, nil, "Error should be nil")
+	validWorkerIds := []uint32{0, 545, 1023}
+	for _, v := range validWorkerIds {
+		sf, err := NewSnowflake(v)
+		require.NoError(t, err)
+
+		id, err := sf.Mint()
+		assert.NoError(t, err)
+		assert.NotEmpty(t, id)
 	}
 }
 
 func TestInvalidWorkerId(t *testing.T) {
-	invalidIds := []uint32{1024, 5841, 892347934}
-	for _, v := range invalidIds {
-		_, err := NewSnowflake(v)
+	invalidWorkerIds := []uint32{1024, 5841, 892347934}
+	for _, v := range invalidWorkerIds {
+		sf, err := NewSnowflake(v)
+		require.NoError(t, err)
+
+		id, err := sf.Mint()
+		assert.Error(t, err)
 		assert.Equal(t, err, ErrInvalidWorkerId, "Error should match")
+		assert.Equal(t, id, "")
 	}
 }
 
 func TestSequenceOverflow(t *testing.T) {
+
+	// Setup snowflake at a particular time which we will freeze at
+	sf, err := NewSnowflake(0)
+	require.NoError(t, err)
+	tms := timeToMsInt64(time.Now())
+	sf.lastTimestamp = tms
+
 	invalidSequenceIds := []uint32{4096, 5841, 892347934}
 	for _, seq := range invalidSequenceIds {
-		gf := &goFlake{
-			lastTimestamp: customTimestamp(time.Now()), // YUK
-			workerId:      0,
-			sequence:      seq,
-		}
-		_, err := gf.Mint()
+
+		// Fix the sequence ID, then update
+		// This should fail, as we are within the same ms
+		sf.sequence = seq
+		err := sf.update(tms)
+		assert.Error(t, err)
 		assert.Equal(t, err, ErrSequenceOverflow, "Error should match")
 	}
 }
 
 func TestMint(t *testing.T) {
-	gf, err := NewSnowflake(0)
-	assert.Equal(t, err, nil, "Error should be nil")
+	sf, err := NewSnowflake(0)
+	require.NoError(t, err)
 
 	for i := 0; i < 10; i++ {
-		id, err := gf.Mint()
+		id, err := sf.Mint()
 		t.Log(id)
-		assert.Equal(t, err, nil, "Error should be nil")
+		assert.NoError(t, err)
 	}
 }
 
@@ -89,25 +111,32 @@ func TestMintId(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		gf := &goFlake{
-			lastTimestamp: tc.lastTs,
-			workerId:      tc.workerId,
-			sequence:      tc.sequence,
-		}
-		id := gf.mintId()
-		assert.Equal(t, id, tc.id, fmt.Sprintf("IDs should match. Provided: '%s', Returned: '%s' ", tc.id, id))
+		sf, err := NewSnowflake(tc.workerId)
+		require.NoError(t, err)
+
+		sf.lastTimestamp = tc.lastTs
+		sf.sequence = tc.sequence
+
+		id := sf.mintId()
+		assert.Equal(t, tc.id, id, fmt.Sprintf("IDs should match. Provided: '%s', Returned: '%s' ", tc.id, id))
 	}
 }
 
 func TestBackwardsTimeError(t *testing.T) {
-	gf := &goFlake{lastTimestamp: 1397666977000}
-	err := gf.update(1397666976999)
-	assert.NotEqual(t, err, nil, "Error should not be nil")
+	sf, err := NewSnowflake(0)
+	require.NoError(t, err)
+
+	err = sf.update(1397666976999)
+	assert.Error(t, err)
 }
 
 func TestTimeOverflow(t *testing.T) {
-	gf := &goFlake{lastTimestamp: 1397666977000}
-	err := gf.update(2199023255552)
+	sf, err := NewSnowflake(0)
+	require.NoError(t, err)
+	sf.lastTimestamp = 1397666977000
+
+	err = sf.update(2199023255552)
+	assert.Error(t, err)
 	assert.Equal(t, err, ErrOverflow, "Errors should match")
 }
 
@@ -118,9 +147,16 @@ func TestPreEpochTime(t *testing.T) {
 		time.Date(1066, 9, 5, 0, 0, 0, 0, time.UTC),
 	}
 	for _, tc := range testCases {
-		gf := &goFlake{}
-		ts := customTimestamp(tc)
-		err := gf.update(ts)
-		assert.NotEqual(t, err, nil, "Errors should match")
+		sf, err := NewSnowflake(0)
+		require.NoError(t, err)
+
+		// Initialise our custom epoch
+		epoch, err := time.Parse(time.RFC3339, defaultSnowflakeEpoch)
+		require.NoError(t, err)
+		epochMs := timeToMsInt64(epoch)
+		ts := customTimestamp(epochMs, tc)
+
+		err = sf.update(ts)
+		assert.Error(t, err)
 	}
 }
