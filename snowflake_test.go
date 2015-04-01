@@ -9,6 +9,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var result string
+
 func TestCustomTimestamp(t *testing.T) {
 
 	// timestamp - epoch = adjusted time
@@ -89,6 +91,31 @@ func TestMint(t *testing.T) {
 		t.Log(id)
 		assert.NoError(t, err)
 	}
+}
+
+func BenchmarkMint(b *testing.B) {
+	var id string
+
+	sf, err := NewSnowflake(0)
+	if err != nil {
+		b.Fail()
+	}
+
+	// Ensure we can mint an id
+	id, err = sf.Mint()
+	if err != nil {
+		b.Fail()
+	}
+
+	// Zoom!
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		id, _ = sf.Mint()
+	}
+
+	// always store the result to a package level variable
+	// so the compiler cannot eliminate the Benchmark itself.
+	result = id
 }
 
 func TestMintId(t *testing.T) {
