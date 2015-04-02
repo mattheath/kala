@@ -1,4 +1,4 @@
-package kala
+package snowflake
 
 import (
 	"errors"
@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/mattheath/kala/util"
 )
 
 const (
@@ -40,7 +42,7 @@ func New(workerId uint32) (*Snowflake, error) {
 		workerId:     workerId,
 		sequenceBits: defaultSequenceBits,
 		workerIdBits: defaultWorkerIdBits,
-		epoch:        timeToMsInt64(epoch),
+		epoch:        util.TimeToMsInt64(epoch),
 	}, nil
 }
 
@@ -83,7 +85,7 @@ func (sf *Snowflake) Mint() (string, error) {
 	}
 
 	// Get the current timestamp in ms, adjusted to our custom epoch
-	t := customTimestamp(sf.epoch, time.Now())
+	t := util.CustomTimestamp(sf.epoch, time.Now())
 
 	// Update snowflake with this, which will increment sequence number if needed
 	err := sf.update(t)
@@ -141,14 +143,4 @@ func (sf *Snowflake) mintId() uint64 {
 	return (uint64(sf.lastTimestamp) << (sf.workerIdBits + sf.sequenceBits)) |
 		(uint64(sf.workerId) << sf.sequenceBits) |
 		(uint64(sf.sequence))
-}
-
-// customTimestamp takes a timestamp and adjusts it to our custom epoch
-func customTimestamp(epoch int64, t time.Time) int64 {
-	return t.UnixNano()/1000000 - epoch
-}
-
-// timeToMsInt64 returns the number of ms since the unix epoch as an int64
-func timeToMsInt64(t time.Time) int64 {
-	return int64(t.UTC().UnixNano() / 1000000)
 }

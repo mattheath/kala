@@ -1,10 +1,11 @@
-package kala
+package snowflake
 
 import (
 	"fmt"
 	"testing"
 	"time"
 
+	"github.com/mattheath/kala/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -29,10 +30,10 @@ func TestCustomTimestamp(t *testing.T) {
 	// Initialise our custom epoch
 	epoch, err := time.Parse(time.RFC3339, defaultEpoch)
 	require.NoError(t, err)
-	epochMs := timeToMsInt64(epoch)
+	epochMs := util.TimeToMsInt64(epoch)
 
 	for _, tc := range testCases {
-		adjTs := customTimestamp(epochMs, time.Unix(tc.ts/1000, 0))
+		adjTs := util.CustomTimestamp(epochMs, time.Unix(tc.ts/1000, 0))
 		assert.Equal(t, adjTs, tc.adjTs, "Times should match")
 	}
 }
@@ -67,7 +68,7 @@ func TestSequenceOverflow(t *testing.T) {
 	// Setup snowflake at a particular time which we will freeze at
 	sf, err := New(0)
 	require.NoError(t, err)
-	tms := timeToMsInt64(time.Now())
+	tms := util.TimeToMsInt64(time.Now())
 	sf.lastTimestamp = tms
 
 	invalidSequenceIds := []uint32{4096, 5841, 892347934}
@@ -180,8 +181,8 @@ func TestPreEpochTime(t *testing.T) {
 		// Initialise our custom epoch
 		epoch, err := time.Parse(time.RFC3339, defaultEpoch)
 		require.NoError(t, err)
-		epochMs := timeToMsInt64(epoch)
-		ts := customTimestamp(epochMs, tc)
+		epochMs := util.TimeToMsInt64(epoch)
+		ts := util.CustomTimestamp(epochMs, tc)
 
 		err = sf.update(ts)
 		assert.Error(t, err)
