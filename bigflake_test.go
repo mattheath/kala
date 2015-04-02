@@ -34,11 +34,9 @@ func TestMintBigflakeId(t *testing.T) {
 
 	var id *big.Int
 	for i := 0; i < 10; i++ {
-		id, _ = bf.Mint()
-		// t.Log(id.String())
-		fmt.Printf("%s\n", id.String())
-		fmt.Printf("%0128b\n", id)
-		// assert.NoError(t, err)
+		id, err = bf.Mint()
+		t.Log(id.String())
+		assert.NoError(t, err)
 	}
 
 	bigId = id
