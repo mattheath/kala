@@ -15,6 +15,17 @@ const (
 	defaultBigflakeSequenceBits uint32 = 16
 )
 
+// NewBigflake initialises a Bigflake minter, with a default configuration
+// This can be configured using Options
+func NewBigflake(workerId uint64) (*Bigflake, error) {
+	return &Bigflake{
+		workerId:     int64(workerId),
+		sequenceBits: defaultBigflakeSequenceBits,
+		workerIdBits: defaultBigflakeWorkerIdBits,
+		epoch:        0, // default unix epoch
+	}, nil
+}
+
 type Bigflake struct {
 	sync.Mutex
 
