@@ -69,10 +69,6 @@ func TestBigflakeSnowflakeMintCompatibility(t *testing.T) {
 	for _, tc := range testCases {
 		bf := &Bigflake{}
 		id := bf.mintId(tc.lastTs, tc.workerId, tc.sequence, 10, 12)
-
-		fmt.Println("uint:", id.Uint64())
-		fmt.Printf("bin : %0128b\n", id)
-
 		assert.Equal(t, uint64(tc.id), id.Uint64(), fmt.Sprintf("IDs should match. Provided: '%s', Returned: '%s' ", tc.id, id))
 	}
 }
