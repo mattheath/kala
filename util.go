@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-func MacAddressToWorkerId(s string) (int64, error) {
+func MacAddressToWorkerId(mac string) (int64, error) {
 	hw, err := net.ParseMAC(mac)
 	if err != nil {
 		return 0, err
