@@ -93,7 +93,7 @@ func TestMint(t *testing.T) {
 	}
 }
 
-func BenchmarkMint(b *testing.B) {
+func BenchmarkMintSnowflakeId(b *testing.B) {
 	var id string
 
 	sf, err := NewSnowflake(0)

@@ -11,7 +11,7 @@ import (
 
 var bigId *big.Int
 
-func TestBigflakeMintId(t *testing.T) {
+func TestMintBigflakeId(t *testing.T) {
 
 	mac := "80:36:bc:db:64:16"
 	workerId, err := MacAddressToWorkerId(mac)
@@ -79,7 +79,7 @@ func TestBigflakeSnowflakeMintCompatibility(t *testing.T) {
 	}
 }
 
-func BenchmarkBigFlakeMintId(b *testing.B) {
+func BenchmarkMintBigflakeId(b *testing.B) {
 	var id *big.Int
 	var lastTs, workerId, sequenceId int64
 
