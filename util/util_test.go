@@ -1,4 +1,4 @@
-package kala
+package util
 
 import (
 	"testing"
