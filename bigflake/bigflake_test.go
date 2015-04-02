@@ -1,4 +1,4 @@
-package kala
+package bigflake
 
 import (
 	"fmt"
@@ -7,6 +7,9 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/mattheath/kala/util"
 )
 
 var bigId *big.Int
@@ -14,16 +17,16 @@ var bigId *big.Int
 func TestMintBigflakeId(t *testing.T) {
 
 	mac := "80:36:bc:db:64:16"
-	workerId, err := MacAddressToWorkerId(mac)
+	workerId, err := util.MacAddressToWorkerId(mac)
 	if err != nil {
 		t.Fail()
 	}
 
 	bf := &Bigflake{
-		lastTimestamp: timeToMsInt64(time.Now()),
+		lastTimestamp: util.TimeToMsInt64(time.Now()),
 
-		workerIdBits: defaultBigflakeWorkerIdBits,
-		sequenceBits: defaultBigflakeSequenceBits,
+		workerIdBits: defaultWorkerIdBits,
+		sequenceBits: defaultSequenceBits,
 
 		workerId: int64(workerId),
 		sequence: 0,
@@ -67,7 +70,8 @@ func TestBigflakeSnowflakeMintCompatibility(t *testing.T) {
 	// Test that the bigflake minter generates snowflake compatible IDs
 	// when provided with the same test cases
 	for _, tc := range testCases {
-		bf := &Bigflake{}
+		bf, err := New(0)
+		require.NoError(t, err)
 		id := bf.mintId(tc.lastTs, tc.workerId, tc.sequence, 10, 12)
 		assert.Equal(t, uint64(tc.id), id.Uint64(), fmt.Sprintf("IDs should match. Provided: '%s', Returned: '%s' ", tc.id, id))
 	}
