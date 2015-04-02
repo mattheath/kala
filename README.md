@@ -55,8 +55,22 @@ func main() {
 ## Bigflake
 
 Kāla provides an alternative minter which mints larger 128bit ids,
-in a similar way to Boundary's [Flake](https://github.com/boundary/flake) implementation.
+in a similar way to Boundary's [Flake](https://github.com/boundary/flake) implementation. These consist of:
 
  * time - 64bits
  * worker ID - 48 bits
  * sequence number - 16 bits
+
+Example IDs:
+```
+26341991268378369512474991263745
+26341991268378369512474991263746
+26341991268378369512474991263747
+26341991268378369512474991263748
+26341991268378369512474991263749
+26341991268378369512474991263750
+26341991268378369512474991263751
+26341991268378369512474991263752
+26341991268378369512474991263753
+26341991268378369512474991263754
+```
