@@ -25,7 +25,7 @@ func TestMintBigflakeId(t *testing.T) {
 		workerIdBits: defaultBigflakeWorkerIdBits,
 		sequenceBits: defaultBigflakeSequenceBits,
 
-		workerId: workerId,
+		workerId: int64(workerId),
 		sequence: 0,
 		epoch:    0,
 	}
