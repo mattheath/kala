@@ -74,3 +74,37 @@ Example IDs:
 26341991268378369512474991263753
 26341991268378369512474991263754
 ```
+
+### Usage
+
+```golang
+package main
+
+import (
+    "github.com/mattheath/kala"
+    "fmt"
+)
+
+func main() {
+	// Using mac address as worker id
+	mac := "80:36:bc:db:64:16"
+	workerId, err := kala.MacAddressToWorkerId(mac)
+
+    // Create a new bigflake minter with a worker id
+    m, err := kala.NewBigflake(workerId)
+
+    for i := 0; i < 10; i++ {
+        id, err := m.Mint()
+        fmt.Println(id)
+    }
+}
+```
+
+## Benchmarks
+
+Implementations are reasonably fast, but will of course vary depending on hardware. The below are from a 1.7Ghz i7 Macbook Air:
+
+```
+BenchmarkMintBigflakeId   2000000        1.952s        976 ns/op
+BenchmarkMintSnowflakeId  5000000        1.575s        315 ns/op
+```
