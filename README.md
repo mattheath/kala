@@ -36,14 +36,14 @@ Example IDs:
 package main
 
 import (
-    "github.com/mattheath/kala"
+    "github.com/mattheath/kala/snowflake"
     "fmt"
 )
 
 func main() {
 
     // Create a new snowflake compatible minter with a worker id, these *must* be unique.
-    v, err := kala.NewSnowflake(100)
+    v, err := snowflake.New(100)
 
     for i := 0; i < 10; i++ {
         id, err := v.Mint()
@@ -81,17 +81,18 @@ Example IDs:
 package main
 
 import (
-    "github.com/mattheath/kala"
+    "github.com/mattheath/kala/bigflake"
+    "github.com/mattheath/kala/util"
     "fmt"
 )
 
 func main() {
 	// Using mac address as worker id
 	mac := "80:36:bc:db:64:16"
-	workerId, err := kala.MacAddressToWorkerId(mac)
+	workerId, err := util.MacAddressToWorkerId(mac)
 
     // Create a new bigflake minter with a worker id
-    m, err := kala.NewBigflake(workerId)
+    m, err := bigflake.New(workerId)
 
     for i := 0; i < 10; i++ {
         id, err := m.Mint()

@@ -1,4 +1,4 @@
-package kala
+package snowflake
 
 import (
 	"errors"
@@ -6,17 +6,19 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/mattheath/kala/util"
 )
 
 const (
 	// default number of bits to use for the worker id
-	defaultSnowflakeWorkerIdBits uint32 = 10
+	defaultWorkerIdBits uint32 = 10
 
 	// default number of bits to use for the sequence (per ms)
-	defaultSnowflakeSequenceBits uint32 = 12
+	defaultSequenceBits uint32 = 12
 
 	// our bespoke epoch, as we have fewer bits for time
-	defaultSnowflakeEpoch string = "2012-01-01T00:00:00Z"
+	defaultEpoch string = "2012-01-01T00:00:00Z"
 )
 
 var (
@@ -25,22 +27,22 @@ var (
 	ErrSequenceOverflow error = errors.New("Sequence overflow (too many IDs generated) - unable to generate IDs for 1 millisecond")
 )
 
-// NewSnowflake creates a new instance of a snowflake compatible ID minter
+// New creates a new instance of a snowflake compatible ID minter
 // the worker ID must be unique otherwise ID collisions are likely to occur
-func NewSnowflake(workerId uint32) (*Snowflake, error) {
+func New(workerId uint32) (*Snowflake, error) {
 
 	// initialise with the defaults, including epoch
 	// 2012-01-01 00:00:00 +0000 UTC => 1325376000000
-	epoch, err := time.Parse(time.RFC3339, defaultSnowflakeEpoch)
+	epoch, err := time.Parse(time.RFC3339, defaultEpoch)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Snowflake{
 		workerId:     workerId,
-		sequenceBits: defaultSnowflakeSequenceBits,
-		workerIdBits: defaultSnowflakeWorkerIdBits,
-		epoch:        timeToMsInt64(epoch),
+		sequenceBits: defaultSequenceBits,
+		workerIdBits: defaultWorkerIdBits,
+		epoch:        util.TimeToMsInt64(epoch),
 	}, nil
 }
 
@@ -83,7 +85,7 @@ func (sf *Snowflake) Mint() (string, error) {
 	}
 
 	// Get the current timestamp in ms, adjusted to our custom epoch
-	t := customTimestamp(sf.epoch, time.Now())
+	t := util.CustomTimestamp(sf.epoch, time.Now())
 
 	// Update snowflake with this, which will increment sequence number if needed
 	err := sf.update(t)
@@ -141,14 +143,4 @@ func (sf *Snowflake) mintId() uint64 {
 	return (uint64(sf.lastTimestamp) << (sf.workerIdBits + sf.sequenceBits)) |
 		(uint64(sf.workerId) << sf.sequenceBits) |
 		(uint64(sf.sequence))
-}
-
-// customTimestamp takes a timestamp and adjusts it to our custom epoch
-func customTimestamp(epoch int64, t time.Time) int64 {
-	return t.UnixNano()/1000000 - epoch
-}
-
-// timeToMsInt64 returns the number of ms since the unix epoch as an int64
-func timeToMsInt64(t time.Time) int64 {
-	return int64(t.UTC().UnixNano() / 1000000)
 }

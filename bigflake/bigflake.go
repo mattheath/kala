@@ -1,27 +1,36 @@
-package kala
+package bigflake
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 	"sync"
 	"time"
+
+	"github.com/mattheath/kala/util"
 )
 
 const (
 	// default number of bits to use for the worker id
-	defaultBigflakeWorkerIdBits uint32 = 48
+	defaultWorkerIdBits uint32 = 48
 
 	// default number of bits to use for the sequence (per ms)
-	defaultBigflakeSequenceBits uint32 = 16
+	defaultSequenceBits uint32 = 16
 )
 
-// NewBigflake initialises a Bigflake minter, with a default configuration
+var (
+	ErrInvalidWorkerId  error = errors.New("Invalid worker ID - worker ID out of range")
+	ErrOverflow         error = errors.New("Timestamp overflow (past end of lifespan) - unable to generate any more IDs")
+	ErrSequenceOverflow error = errors.New("Sequence overflow (too many IDs generated) - unable to generate IDs for 1 millisecond")
+)
+
+// New initialises a Bigflake minter, with a default configuration
 // This can be configured using Options
-func NewBigflake(workerId uint64) (*Bigflake, error) {
+func New(workerId uint64) (*Bigflake, error) {
 	return &Bigflake{
 		workerId:     int64(workerId),
-		sequenceBits: defaultBigflakeSequenceBits,
-		workerIdBits: defaultBigflakeWorkerIdBits,
+		sequenceBits: defaultSequenceBits,
+		workerIdBits: defaultWorkerIdBits,
 		epoch:        0, // default unix epoch
 	}, nil
 }
@@ -69,9 +78,9 @@ func (bf *Bigflake) Mint() (*big.Int, error) {
 
 	// Get the current timestamp in ms
 	// @todo generalise to allow custom epoch
-	t := timeToMsInt64(time.Now())
+	t := util.TimeToMsInt64(time.Now())
 
-	// Update bigflake with this, which will increment sequence number if needed
+	// Update bigflake with this, which Mawill increment sequence number if needed
 	err := bf.update(t)
 	if err != nil {
 		return nil, err

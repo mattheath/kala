@@ -1,10 +1,11 @@
-package kala
+package snowflake
 
 import (
 	"fmt"
 	"testing"
 	"time"
 
+	"github.com/mattheath/kala/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -27,12 +28,12 @@ func TestCustomTimestamp(t *testing.T) {
 	}
 
 	// Initialise our custom epoch
-	epoch, err := time.Parse(time.RFC3339, defaultSnowflakeEpoch)
+	epoch, err := time.Parse(time.RFC3339, defaultEpoch)
 	require.NoError(t, err)
-	epochMs := timeToMsInt64(epoch)
+	epochMs := util.TimeToMsInt64(epoch)
 
 	for _, tc := range testCases {
-		adjTs := customTimestamp(epochMs, time.Unix(tc.ts/1000, 0))
+		adjTs := util.CustomTimestamp(epochMs, time.Unix(tc.ts/1000, 0))
 		assert.Equal(t, adjTs, tc.adjTs, "Times should match")
 	}
 }
@@ -40,7 +41,7 @@ func TestCustomTimestamp(t *testing.T) {
 func TestValidWorkerId(t *testing.T) {
 	validWorkerIds := []uint32{0, 545, 1023}
 	for _, v := range validWorkerIds {
-		sf, err := NewSnowflake(v)
+		sf, err := New(v)
 		require.NoError(t, err)
 
 		id, err := sf.Mint()
@@ -52,7 +53,7 @@ func TestValidWorkerId(t *testing.T) {
 func TestInvalidWorkerId(t *testing.T) {
 	invalidWorkerIds := []uint32{1024, 5841, 892347934}
 	for _, v := range invalidWorkerIds {
-		sf, err := NewSnowflake(v)
+		sf, err := New(v)
 		require.NoError(t, err)
 
 		id, err := sf.Mint()
@@ -65,9 +66,9 @@ func TestInvalidWorkerId(t *testing.T) {
 func TestSequenceOverflow(t *testing.T) {
 
 	// Setup snowflake at a particular time which we will freeze at
-	sf, err := NewSnowflake(0)
+	sf, err := New(0)
 	require.NoError(t, err)
-	tms := timeToMsInt64(time.Now())
+	tms := util.TimeToMsInt64(time.Now())
 	sf.lastTimestamp = tms
 
 	invalidSequenceIds := []uint32{4096, 5841, 892347934}
@@ -83,7 +84,7 @@ func TestSequenceOverflow(t *testing.T) {
 }
 
 func TestMint(t *testing.T) {
-	sf, err := NewSnowflake(0)
+	sf, err := New(0)
 	require.NoError(t, err)
 
 	for i := 0; i < 10; i++ {
@@ -96,7 +97,7 @@ func TestMint(t *testing.T) {
 func BenchmarkMintSnowflakeId(b *testing.B) {
 	var id string
 
-	sf, err := NewSnowflake(0)
+	sf, err := New(0)
 	if err != nil {
 		b.Fail()
 	}
@@ -138,7 +139,7 @@ func TestMintId(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		sf, err := NewSnowflake(tc.workerId)
+		sf, err := New(tc.workerId)
 		require.NoError(t, err)
 
 		sf.lastTimestamp = tc.lastTs
@@ -150,7 +151,7 @@ func TestMintId(t *testing.T) {
 }
 
 func TestBackwardsTimeError(t *testing.T) {
-	sf, err := NewSnowflake(0)
+	sf, err := New(0)
 	require.NoError(t, err)
 
 	err = sf.update(1397666976999)
@@ -158,7 +159,7 @@ func TestBackwardsTimeError(t *testing.T) {
 }
 
 func TestTimeOverflow(t *testing.T) {
-	sf, err := NewSnowflake(0)
+	sf, err := New(0)
 	require.NoError(t, err)
 	sf.lastTimestamp = 1397666977000
 
@@ -174,14 +175,14 @@ func TestPreEpochTime(t *testing.T) {
 		time.Date(1066, 9, 5, 0, 0, 0, 0, time.UTC),
 	}
 	for _, tc := range testCases {
-		sf, err := NewSnowflake(0)
+		sf, err := New(0)
 		require.NoError(t, err)
 
 		// Initialise our custom epoch
-		epoch, err := time.Parse(time.RFC3339, defaultSnowflakeEpoch)
+		epoch, err := time.Parse(time.RFC3339, defaultEpoch)
 		require.NoError(t, err)
-		epochMs := timeToMsInt64(epoch)
-		ts := customTimestamp(epochMs, tc)
+		epochMs := util.TimeToMsInt64(epoch)
+		ts := util.CustomTimestamp(epochMs, tc)
 
 		err = sf.update(ts)
 		assert.Error(t, err)
