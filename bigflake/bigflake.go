@@ -64,7 +64,7 @@ type Bigflake struct {
 }
 
 // Mint a new 128bit ID based on the current time, worker id and sequence
-func (bf *Bigflake) Mint() (*big.Int, error) {
+func (bf *Bigflake) Mint() (*BigflakeId, error) {
 	bf.Lock()
 	defer bf.Unlock()
 
@@ -88,8 +88,11 @@ func (bf *Bigflake) Mint() (*big.Int, error) {
 
 	// Mint a new ID
 	id := bf.mintId(bf.lastTimestamp, bf.workerId, bf.sequence, 48, 16)
+	bfId := &BigflakeId{
+		id: id,
+	}
 
-	return id, nil
+	return bfId, nil
 }
 
 // setup is called the first time we mint an ID and locks in our configured options

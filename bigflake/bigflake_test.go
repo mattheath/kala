@@ -12,7 +12,7 @@ import (
 	"github.com/mattheath/kala/util"
 )
 
-var bigId *big.Int
+var bigId *BigflakeId
 
 func TestMintBigflakeId(t *testing.T) {
 
@@ -35,7 +35,7 @@ func TestMintBigflakeId(t *testing.T) {
 
 	start := time.Now()
 
-	var id *big.Int
+	var id *BigflakeId
 	for i := 0; i < 10; i++ {
 		id, err = bf.Mint()
 		t.Log(id.String())
@@ -93,5 +93,5 @@ func BenchmarkMintBigflakeId(b *testing.B) {
 
 	// always store the result to a package level variable
 	// so the compiler cannot eliminate the Benchmark itself.
-	bigId = id
+	bigId = &BigflakeId{id: id}
 }
