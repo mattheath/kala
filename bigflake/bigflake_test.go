@@ -15,25 +15,8 @@ import (
 var bigId *BigflakeId
 
 func TestMintBigflakeId(t *testing.T) {
-
-	mac := "80:36:bc:db:64:16"
-	workerId, err := util.MacAddressToWorkerId(mac)
-	if err != nil {
-		t.Fail()
-	}
-
-	bf := &Bigflake{
-		lastTimestamp: util.TimeToMsInt64(time.Now()),
-
-		workerIdBits: defaultWorkerIdBits,
-		sequenceBits: defaultSequenceBits,
-
-		workerId: int64(workerId),
-		sequence: 0,
-		epoch:    0,
-	}
-
-	start := time.Now()
+	var err error
+	bf := newBigflakeMinter(t)
 
 	var id *BigflakeId
 	for i := 0; i < 10; i++ {
@@ -41,11 +24,7 @@ func TestMintBigflakeId(t *testing.T) {
 		t.Log(id.String())
 		assert.NoError(t, err)
 	}
-
 	bigId = id
-
-	fmt.Println("elapsed: ", time.Since(start))
-
 }
 
 func TestBigflakeSnowflakeMintCompatibility(t *testing.T) {
@@ -94,4 +73,23 @@ func BenchmarkMintBigflakeId(b *testing.B) {
 	// always store the result to a package level variable
 	// so the compiler cannot eliminate the Benchmark itself.
 	bigId = &BigflakeId{id: id}
+}
+
+func newBigflakeMinter(t *testing.T) *Bigflake {
+	mac := "80:36:bc:db:64:16"
+	workerId, err := util.MacAddressToWorkerId(mac)
+	if err != nil {
+		t.Fail()
+	}
+
+	return &Bigflake{
+		lastTimestamp: util.TimeToMsInt64(time.Now()),
+
+		workerIdBits: defaultWorkerIdBits,
+		sequenceBits: defaultSequenceBits,
+
+		workerId: int64(workerId),
+		sequence: 0,
+		epoch:    0,
+	}
 }
