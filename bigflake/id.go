@@ -2,8 +2,12 @@ package bigflake
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"math/big"
+	"regexp"
+
+	"github.com/mattheath/base62"
 )
 
 // BigflakeId represents a globally unique ID
@@ -18,7 +22,7 @@ func (bf *BigflakeId) String() string {
 
 // Base62 returns a base62 encoded version
 func (bf *BigflakeId) Base62() string {
-	return ""
+	return base62.EncodeBigInt(bf.id)
 }
 
 // Uuid returns the id encoded in UUID format
