@@ -58,3 +58,31 @@ func (bf *BigflakeId) Uuid() string {
 func (bf *BigflakeId) Raw() *big.Int {
 	return bf.id
 }
+
+// UUID Parsing code based on github.com/nu7hatch/gouuid
+// Copyright (C) 2011 by Krzysztof Kowalik <chris@nu7hat.ch>
+
+// Pattern used to parse hex string representation of the UUID.
+var uuidRegexp = regexp.MustCompile("^(urn\\:uuid\\:)?\\{?([a-z0-9]{8})-([a-z0-9]{4})-" +
+	"([a-z0-9]{4})-([a-z0-9]{4})-([a-z0-9]{12})\\}?$")
+
+// ParseUuid into a BigflakeId
+func ParseUuid(s string) (bf *BigflakeId, err error) {
+	md := uuidRegexp.FindStringSubmatch(s)
+	if md == nil {
+		err = errors.New("Invalid UUID string")
+		return
+	}
+	hash := md[2] + md[3] + md[4] + md[5] + md[6]
+	b, err := hex.DecodeString(hash)
+	if err != nil {
+		return
+	}
+
+	id := new(big.Int)
+	id.SetBytes(b)
+	bf = &BigflakeId{
+		id: id,
+	}
+	return
+}
