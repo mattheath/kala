@@ -30,6 +30,13 @@ func (bf *BigflakeId) Base62() string {
 	return base62.EncodeBigInt(bf.id)
 }
 
+// Base62WithPadding returns a base62 encoded id with left padding
+func (bf *BigflakeId) Base62WithPadding(minlen int) string {
+	e := base62.NewStdEncoding().Option(base62.Padding(minlen))
+
+	return e.EncodeBigInt(bf.id)
+}
+
 // Uuid returns the id encoded in UUID format
 func (bf *BigflakeId) Uuid() string {
 	b := bf.id.Bytes()
