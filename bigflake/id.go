@@ -20,6 +20,11 @@ func (bf *BigflakeId) String() string {
 	return bf.id.String()
 }
 
+// BinaryString returns a padded 128bit binary number formatted as a string
+func (bf *BigflakeId) BinaryString() string {
+	return fmt.Sprintf("%0128b", bf.id)
+}
+
 // Base62 returns a base62 encoded version
 func (bf *BigflakeId) Base62() string {
 	return base62.EncodeBigInt(bf.id)
