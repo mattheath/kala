@@ -78,5 +78,8 @@ func TestTimeToMsInt64(t *testing.T) {
 		t.Logf("%s :: %v", tc.timestamp, ms)
 
 		assert.Equal(t, tc.expected, ms, fmt.Sprintf("Expected %s", tc.timestamp))
+
+		ts2 := MsInt64ToTime(ms)
+		assert.Equal(t, ts.Truncate(time.Millisecond).String(), ts2.Truncate(time.Millisecond).String())
 	}
 }
