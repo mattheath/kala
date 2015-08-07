@@ -45,8 +45,8 @@ func TestParseBigFlake(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		id := MintId(tc.lastTs, tc.workerId, tc.sequence, defaultWorkerIdBits, defaultSequenceBits)
-		ts, workerId, sequence := ParseId(id, defaultWorkerIdBits, defaultSequenceBits)
+		id := MintId(tc.lastTs, tc.workerId, tc.sequence)
+		ts, workerId, sequence := ParseId(id)
 
 		assert.Equal(t, tc.lastTs, ts)
 		assert.Equal(t, tc.workerId, workerId)
@@ -76,7 +76,7 @@ func TestBigflakeSnowflakeMintCompatibility(t *testing.T) {
 	// Test that the bigflake minter generates snowflake compatible IDs
 	// when provided with the same test cases
 	for _, tc := range testCases {
-		id := MintId(tc.lastTs, tc.workerId, tc.sequence, 10, 12)
+		id := mintId(tc.lastTs, tc.workerId, tc.sequence, 10, 12)
 		assert.Equal(t, uint64(tc.id), id.Uint64(), fmt.Sprintf("IDs should match. Provided: '%d', Returned: '%s' ", tc.id, id))
 	}
 }
@@ -91,7 +91,7 @@ func BenchmarkMintBigflakeId(b *testing.B) {
 	// Zoom!
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
-		id = MintId(lastTs, workerId, sequenceId, 10, 12)
+		id = mintId(lastTs, workerId, sequenceId, 10, 12)
 	}
 
 	// always store the result to a package level variable
