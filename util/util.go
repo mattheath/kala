@@ -26,3 +26,7 @@ func CustomTimestamp(epoch int64, t time.Time) int64 {
 func TimeToMsInt64(t time.Time) int64 {
 	return int64(t.UTC().Unix()*1e3) + int64(t.UTC().Nanosecond()/1e6)
 }
+
+func MsInt64ToTime(msInt int64) time.Time {
+	return time.Unix(0, msInt*int64(time.Millisecond)).UTC()
+}
