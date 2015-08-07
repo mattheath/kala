@@ -13,7 +13,7 @@ func TestMacAddressToWorkerId(t *testing.T) {
 	mac := "80:36:bc:db:64:16"
 	workerId, err := MacAddressToWorkerId(mac)
 	require.NoError(t, err)
-	assert.Equal(t, uint(140972585083926), workerId)
+	assert.EqualValues(t, 140972585083926, workerId)
 }
 
 func TestCustomTimestamp(t *testing.T) {
