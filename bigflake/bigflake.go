@@ -87,7 +87,7 @@ func (bf *Bigflake) Mint() (*BigflakeId, error) {
 	}
 
 	// Mint a new ID
-	id := bf.mintId(bf.lastTimestamp, bf.workerId, bf.sequence, 48, 16)
+	id := bf.MintId(bf.lastTimestamp, bf.workerId, bf.sequence, 48, 16)
 	bfId := &BigflakeId{
 		id: id,
 	}
@@ -141,8 +141,9 @@ func (bf *Bigflake) update(t int64) error {
 	return nil
 }
 
-// mintId mints new 128bit IDs from the timestamp, worker ID and sequence
-func (bf *Bigflake) mintId(timestamp, workerid, sequence int64,
+// MintId mints new 128bit IDs from the timestamp, worker ID and sequence,
+// this should only be used directly for testing
+func (bf *Bigflake) MintId(timestamp, workerid, sequence int64,
 	workerIdBits, sequenceIdBits uint32) *big.Int {
 
 	// Time is the most significant bits
