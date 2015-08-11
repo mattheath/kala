@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"github.com/mattheath/kala/util"
 )
@@ -25,6 +24,34 @@ func TestMintBigflakeId(t *testing.T) {
 		assert.NoError(t, err)
 	}
 	bigId = id
+}
+
+func TestParseBigFlake(t *testing.T) {
+	testCases := []struct {
+		lastTs   int64
+		workerId int64
+		sequence int64
+	}{
+		{1397666977000, 0, 0},     // Plain bit shift 22
+		{2344466898000, 0, 0},     // Plain bit shift 22
+		{1397666977000, 10, 0},    // Worker 10
+		{2344466898000, 10, 0},    // Worker 10
+		{1397666977000, 1023, 0},  // Worker 1023
+		{2344466898000, 1023, 0},  // Worker 1023
+		{1397666977000, 10, 123},  // Worker 10 & Sequence 123
+		{2344466898000, 10, 1230}, // Worker 10 & Sequence 1230
+		{1397666977000, 10, 2356}, // Worker 10 & Sequence 2356
+		{2344466898000, 10, 4090}, // Worker 10 & Sequence 4090
+	}
+
+	for _, tc := range testCases {
+		id := MintId(tc.lastTs, tc.workerId, tc.sequence)
+		ts, workerId, sequence := ParseId(id)
+
+		assert.Equal(t, tc.lastTs, ts)
+		assert.Equal(t, tc.workerId, workerId)
+		assert.Equal(t, tc.sequence, sequence)
+	}
 }
 
 func TestBigflakeSnowflakeMintCompatibility(t *testing.T) {
@@ -49,10 +76,8 @@ func TestBigflakeSnowflakeMintCompatibility(t *testing.T) {
 	// Test that the bigflake minter generates snowflake compatible IDs
 	// when provided with the same test cases
 	for _, tc := range testCases {
-		bf, err := New(0)
-		require.NoError(t, err)
-		id := bf.mintId(tc.lastTs, tc.workerId, tc.sequence, 10, 12)
-		assert.Equal(t, uint64(tc.id), id.Uint64(), fmt.Sprintf("IDs should match. Provided: '%s', Returned: '%s' ", tc.id, id))
+		id := mintId(tc.lastTs, tc.workerId, tc.sequence, 10, 12)
+		assert.Equal(t, uint64(tc.id), id.Uint64(), fmt.Sprintf("IDs should match. Provided: '%d', Returned: '%s' ", tc.id, id))
 	}
 }
 
@@ -62,12 +87,11 @@ func BenchmarkMintBigflakeId(b *testing.B) {
 
 	// Setup
 	lastTs, workerId, sequenceId = 1397666977000, 10, 2356
-	bf := &Bigflake{}
 
 	// Zoom!
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
-		id = bf.mintId(lastTs, workerId, sequenceId, 10, 12)
+		id = mintId(lastTs, workerId, sequenceId, 10, 12)
 	}
 
 	// always store the result to a package level variable

@@ -69,7 +69,7 @@ func ksortability(t *testing.T, formatFunc func(id *BigflakeId) string) {
 		// Update time, sequence etc
 		err := bf.update(util.TimeToMsInt64(time.Now().Add(timeDiff)))
 		require.NoError(t, err)
-		id.id = bf.mintId(bf.lastTimestamp, bf.workerId, bf.sequence, 48, 16)
+		id.id = MintId(bf.lastTimestamp, bf.workerId, bf.sequence)
 
 		idStr := formatFunc(id)
 
