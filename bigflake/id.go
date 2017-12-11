@@ -10,6 +10,11 @@ import (
 	"github.com/mattheath/base62"
 )
 
+// NewId creates a BigflakeId from a big.Int
+func NewId(id *big.Int) *BigflakeId {
+	return &BigflakeId{id}
+}
+
 // BigflakeId represents a globally unique ID
 type BigflakeId struct {
 	id *big.Int
