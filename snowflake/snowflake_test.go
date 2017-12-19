@@ -146,7 +146,7 @@ func TestMintId(t *testing.T) {
 		sf.sequence = tc.sequence
 
 		id := sf.mintId()
-		assert.Equal(t, tc.id, id, fmt.Sprintf("IDs should match. Provided: '%s', Returned: '%s' ", tc.id, id))
+		assert.Equal(t, tc.id, id, fmt.Sprintf("IDs should match. Provided: '%v', Returned: '%v' ", tc.id, id))
 	}
 }
 
